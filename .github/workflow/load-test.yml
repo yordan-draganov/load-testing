@@ -1,0 +1,30 @@
+name: Run Locust Load Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Locust
+        run: pip install locust
+      
+      - name: Run tests
+        run: locust -f locustfile.py --headless --users 10 --spawn-rate 2 --run-time 60s --html report.html
+      
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: report.html
