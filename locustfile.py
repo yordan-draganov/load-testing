@@ -1,34 +1,36 @@
 from locust import HttpUser, task, between
 
-class GoogleLoadTest(HttpUser):
+class JSONPlaceholderLoadTest(HttpUser):
+    # Wait between 1 and 3 seconds between tasks
     wait_time = between(1, 3)
     
-    host = "https://www.google.com"
+    # Base URL for the test - JSONPlaceholder is a free fake API for testing
+    host = "https://jsonplaceholder.typicode.com"
     
     @task(2)
-    def get_homepage(self):
-        self.client.get("/", name="GET Homepage")
+    def get_posts(self):
+        """GET request to fetch all posts"""
+        self.client.get("/posts", name="GET All Posts")
     
     @task(2)
-    def get_search(self):
-        self.client.get("/search?q=locust+load+testing", name="GET Search")
+    def get_single_post(self):
+        """GET request to fetch a single post"""
+        self.client.get("/posts/1", name="GET Single Post")
     
     @task(2)
-    def get_images(self):
-        self.client.get("/imghp", name="GET Images")
+    def get_comments(self):
+        """GET request to fetch comments"""
+        self.client.get("/comments?postId=1", name="GET Comments")
     
     @task(1)
-    def post_search_form(self):
+    def create_post(self):
+        """POST request to create a new post"""
         self.client.post(
-            "/search",
-            data={"q": "load testing"},
-            name="POST Search Form"
-        )
-    
-    @task(1)
-    def post_custom(self):
-        self.client.post(
-            "/",
-            json={"test": "data", "user": "locust"},
-            name="POST Custom Data"
+            "/posts",
+            json={
+                "title": "Load Test Post",
+                "body": "This is a test post created by Locust",
+                "userId": 1
+            },
+            name="POST Create Post"
         )
